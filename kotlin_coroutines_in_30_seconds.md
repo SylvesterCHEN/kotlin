@@ -1,16 +1,16 @@
 # Kotlin 协程上手
 
-Kotlin 协程（Coroutines）是一套异步编程方案。开发者习惯性地将 Kotlin 协程和 RxJava 进行比较，如它们都支持线程切换、避免回调地狱等。但它们的实现思路并不相同：RxJava 是基于观察者模式的流式开发，Kotlin 协程是基于状态模式的同步式编程。RxJava 历史已久、稳定而强大，所以去探索 RxJava 中的功能在新兴的 Kotlin 协程框架下如何实现显然比论证孰优孰劣更有实践意义。
+Kotlin 协程（Coroutines）是一套异步编程（Asynchronous Programming）方案。开发者习惯性地将 Kotlin 协程和 RxJava 进行比较，因为它们都支持线程切换、避免回调地狱等。但它们的实现思路并不相同：RxJava 是基于观察者模式的流式开发，Kotlin 协程是基于状态模式的同步式编程。RxJava 历史已久、稳定而强大，所以去探索 RxJava 中的功能在新兴的 Kotlin 协程框架下如何实现比论证孰优孰劣更有实践意义。
 
-开始编码之前先认识协程具体用来解决什么问题，哪些场景适合用协程。
+开始编码之前先认识协程具体用来解决什么问题，哪些场景适合用协程。在 Kotlin 协程出现之前，Android 应用开发中异步编程的工具已经有很多，如：Thread、Executor、Handler、AsyncTask、RxJava等。直接使用 Thread 会使后台任务难以管理，通常以 Executor 取而代之；Handler 可以方便地和主线程沟通属于专用的场景需求，当然也可以用 HandlerThread 创建后台的 Handler，不过这样的场景同样可以用 Executor 取代。AsyncTask 存在小缺陷同时在设计上耦合数据和视图业务代码已经被官方抛弃不建议使用。RxJava 的底层多线程支持是 Executor 和 Handler，Kotlin 协程同样如此。如果在项目中自行实现多线程调度，那么可以直接使用 Executor 和 Handler。
 
 ## 术语
 
-Kotlin 协程是一段可以在多个线程间游走的子程序。通过引入 `kotlinx.coroutines` 库，可以很方便地进行协程编程。在开始编写协程代码之前需要先了解 `kotlinx.coroutines` 库为开发者制定的使用规则，进而正确、高效地使用这个库。
+Kotlin 协程是一段可以在多个线程间游走的子程序。通过引入 `kotlinx.coroutines` 库，可以很方便地进行协程编程。在开始编写协程代码之前需要先了解 `kotlinx.coroutines` 库为开发者制定的规则，进而正确、高效地使用这个库。
 
 就像写 RxJava 代码前，需理解它是一个事件驱动的响应式模型，开发者遵从 RxJava 的编程思想，把需求任务转化为事件模型，创建事件源、通过数个操作符将上游发送的事件转化为下游可接受的事件、终端操作触发事件开始传递。Kotlin 协程则是一个可挂起任务的协作模型，开发者将需求问题拆解成可挂起任务（**挂起函数**），编排任务的先后次序，最后提交给协程执行。
 
-协程启动需要**协程域**（`CoroutineScope`），一个域绑定着一个**协程上下文**（`CoroutineContext`）。上下文可以包含多种子元素，如：**作业**（`Job`）、**调度器**（`CoroutineDispatcher`）、**协程名称**（`CoroutineName`）、**异常处理器**（`CoroutineExceptionHandler`）等。一个主协程往往是协调多个子协程完成复杂任务。利用**协程构建函数**（Coroutine builders）从当前协程域启动新的协程，这些新协程会自动和创建它的协程绑定主从关系，同时生成子域、子上下文。父子关系的链接支持着协程的**结构化并发**，父协程可以取消子协程，子协程异常可以上抛给父协程处理。
+协程启动需要**协程域**（`CoroutineScope`），一个域绑定着一个**协程上下文**（`CoroutineContext`）。上下文可以包含多种子元素，如：**作业**（`Job`）、**调度器**（`CoroutineDispatcher`）、**协程名称**（`CoroutineName`）、**异常处理器**（`CoroutineExceptionHandler`）等。一个协程往往是协调多个子协程完成复杂任务。当利用**协程构建函数**（Coroutine builders）从当前协程域启动新的协程时，这些新协程会自动和创建它的协程绑定主从关系，同时生成子域、子上下文。父子关系的连接支持着协程的**结构化并发**，父协程可以取消子协程，子协程异常可以上抛给父协程处理。
 
 上面的理论描述涉及到许多 Kotlin 协程的术语：
 
