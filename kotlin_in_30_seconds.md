@@ -1381,3 +1381,12 @@ public inline fun <T, R> with(receiver: T, block: T.() -> R): R {
 | use()   | 在 `Closeable` 实例上调用 | `it`         | 传入代码块的运算结果 |
 
 `use` 相当于只作用在 `Closeable` 实例对象上的 `let`。我们知道 Java7 引入 try-with-resources 的语法，从而实现自动关闭资源，避免内存泄漏，也避免资源没有正确关闭。Kotlin 中没有这样的语法，取而代之使用 `use` 函数将关闭资源的逻辑打包成模式代码，这样它就可以在 Java6 上同样支持自动关闭的操作。
+
+## 更多
+
+- 泛型：对 Kotlin 泛型的理解需要建立在掌握 Java 泛型的基础之上，官网上的介绍过于简单不便理解，不妨先去学习 Java 泛型吧。
+- 异常处理：[Kotlin 异常](https://www.kotlincn.net/docs/reference/exceptions.html)的使用和 Java 一致，只是异常没有强制检查。还需要注意使用注解标记异常抛出，保证 Java 互操作是安全的。
+- 协程
+- Java 互操作
+  - [Kotlin 中调用 Java](https://www.kotlincn.net/docs/reference/java-interop.html)
+  - [Java 中调用 Kotlin](https://www.kotlincn.net/docs/reference/java-to-kotlin-interop.html)
